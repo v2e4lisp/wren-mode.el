@@ -42,15 +42,15 @@
 
 (defconst wren-keywords:data
   '("class" "var" "new")
-  "wren keywords for data")
+  "Wren keywords for data.")
 
 (defconst wren-keywords:control-flow
   '("if" "else" "while" "for" "return")
-  "wren keywords for control flow")
+  "Wren keywords for control flow.")
 
 (defconst wren-keywords:op:logic
   '("and" "or" "not" "is")
-  "wren keywords for control flow")
+  "Wren keywords for control flow.")
 
 (defcustom wren-tab-width tab-width
   "The tab width to use when indenting."
@@ -75,11 +75,11 @@
            font-lock-keyword-face)
      (cons wren-this-regexp font-lock-variable-name-face)
      (cons wren-super-regexp font-lock-variable-name-face)))
-  "wren keywords highlighting")
+  "Wren keywords highlighting.")
 
 
 (defun wren-comment-or-string-p (&optional pos)
-  "Returns true if the point is in a comment or string."
+  "Return t if it's a comment or string at POS, defaulting to point."
   (save-excursion (let ((parse-result (syntax-ppss pos)))
                     (or (elt parse-result 3) (elt parse-result 4)))))
 
@@ -92,12 +92,14 @@
 
 
 (defun wren-goto-preivous-nonblank-line ()
+  "Move backward until on a non blank line."
   (forward-line -1)
   (while (and (looking-at "^[ \t]*$") (not (bobp)))
     (forward-line -1)))
 
 
 (defun wren-indent-to (x)
+  "Indent line to X column."
   (when x
     (let (shift top beg)
       (and (< x 0) (error "invalid nest"))
@@ -121,6 +123,7 @@
 
 ;;;###autoload
 (defun wren-calculate-indent ()
+  "Return the column to which the current line should be indented."
   (interactive)
 
   (let* ((pos (point))
@@ -158,6 +161,7 @@
 
 ;;;###autoload
 (defun wren-indent-line ()
+  "Indent current line of Wren code."
   (interactive)
   (wren-indent-to (wren-calculate-indent)))
 
