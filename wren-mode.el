@@ -181,6 +181,7 @@
   (modify-syntax-entry ?< "." wren-mode-syntax-table)
   (modify-syntax-entry ?= "." wren-mode-syntax-table)
   (modify-syntax-entry ?~ "." wren-mode-syntax-table)
+  (modify-syntax-entry ?_ "_" wren-mode-syntax-table)
 
   (setq font-lock-defaults '((wren-font-lock-keywords)))
 
