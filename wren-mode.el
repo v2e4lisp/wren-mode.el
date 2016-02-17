@@ -181,6 +181,10 @@
   (modify-syntax-entry ?~ "." wren-mode-syntax-table)
   (modify-syntax-entry ?_ "_" wren-mode-syntax-table)
 
+  ;; abbrev table
+  ;; See: https://groups.google.com/forum/#!topic/wren-lang/T3uZmpZT6PA
+  (define-abbrev wren-mode-abbrev-table "Sys" "System" nil :case-fixed)
+
   (setq font-lock-defaults '((wren-font-lock-keywords)))
 
   (set (make-local-variable 'electric-indent-chars) '(?\n ?\}))
