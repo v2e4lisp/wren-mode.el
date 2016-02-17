@@ -183,6 +183,8 @@
 
   (setq font-lock-defaults '((wren-font-lock-keywords)))
 
+  (set (make-local-variable 'electric-indent-chars) '(?\n ?\}))
+
   (set (make-local-variable 'comment-start) "//")
 
   (set (make-local-variable 'indent-line-function) 'wren-indent-line))
