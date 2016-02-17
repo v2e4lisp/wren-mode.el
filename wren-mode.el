@@ -100,7 +100,7 @@
   "Indent line to X column."
   (when x
     (let (shift top beg)
-      (and (< x 0) (error "invalid nest"))
+      (and (< x 0) (error "Invalid nest"))
       (setq shift (current-column))
       (beginning-of-line)
       (setq beg (point))
@@ -165,7 +165,7 @@
 
 
 ;;;###autoload
-(define-derived-mode wren-mode prog-mode "wren"
+(define-derived-mode wren-mode prog-mode "Wren"
   "Major mode for editing Wren."
 
   ;; syntax table
