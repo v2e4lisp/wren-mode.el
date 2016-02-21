@@ -59,7 +59,6 @@
   :safe 'integerp)
 
 (defvar wren-this-regexp "_\\w+")
-(defvar wren-super-regexp "\\<super\\>")
 ;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
 
 
@@ -71,8 +70,7 @@
            font-lock-keyword-face)
      (cons (concat beg (regexp-opt wren-constants t) end)
            font-lock-constant-face)
-     (cons wren-this-regexp font-lock-variable-name-face)
-     (cons wren-super-regexp font-lock-variable-name-face)))
+     (cons wren-this-regexp font-lock-variable-name-face)))
   "Wren keywords highlighting.")
 
 
