@@ -170,6 +170,7 @@
   (modify-syntax-entry ?/ ". 124b" wren-mode-syntax-table)
   (modify-syntax-entry ?* ". 23n" wren-mode-syntax-table)
   (modify-syntax-entry ?\n "> b" wren-mode-syntax-table)
+  (modify-syntax-entry ?\\ "\\" wren-mode-syntax-table)
   (modify-syntax-entry ?+ "." wren-mode-syntax-table)
   (modify-syntax-entry ?^ "." wren-mode-syntax-table)
   (modify-syntax-entry ?% "." wren-mode-syntax-table)
