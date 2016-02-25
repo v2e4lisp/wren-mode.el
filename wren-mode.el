@@ -63,14 +63,9 @@
 
 
 (defvar wren-font-lock-keywords
-  (let ((beg "\\<")
-        (end "\\>"))
-    (list
-     (cons (concat beg (regexp-opt wren-keywords t) end)
-           font-lock-keyword-face)
-     (cons (concat beg (regexp-opt wren-constants t) end)
-           font-lock-constant-face)
-     (cons wren-this-regexp font-lock-variable-name-face)))
+  `((,(regexp-opt wren-keywords 'words) . font-lock-keyword-face)
+    (,(regexp-opt wren-constants 'words) . font-lock-constant-face)
+    (,wren-this-regexp . font-lock-variable-name-face))
   "Wren keywords highlighting.")
 
 
