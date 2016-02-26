@@ -58,13 +58,13 @@
   :group 'wren
   :safe 'integerp)
 
-(defvar wren-this-regexp "_\\w+")
+(defvar wren-this-regexp "\\_<_\\(\\w\\|\\s_\\)+\\_>")
 ;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
 
 
 (defvar wren-font-lock-keywords
-  `((,(regexp-opt wren-keywords 'words) . font-lock-keyword-face)
-    (,(regexp-opt wren-constants 'words) . font-lock-constant-face)
+  `((,(regexp-opt wren-keywords 'symbols) . font-lock-keyword-face)
+    (,(regexp-opt wren-constants 'symbols) . font-lock-constant-face)
     (,wren-this-regexp . font-lock-variable-name-face))
   "Wren keywords highlighting.")
 
