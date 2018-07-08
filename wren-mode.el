@@ -1,16 +1,14 @@
 ;;; wren-mode.el --- wren.io emacs mode     -*- lexical-binding: t -*-
 
 (defconst wren-keywords:data
-  '("class" "var" "new")
+  '("break" "class" "construct" "else" "for" "foreign" "if"
+    "import" "in" "is" "return" "static" "super" "this" "var"
+    "while" "new")
   "wren keywords for data")
 
-(defconst wren-keywords:control-flow
-  '("if" "else" "while" "for" "return")
-  "wren keywords for control flow")
-
-(defconst wren-keywords:op:logic
-  '("and" "or" "not" "is")
-  "wren keywords for control flow")
+(defconst wren-keywords:constant
+  '("true" "false" "null")
+  "wren keywords for constants")
 
 (defcustom wren-tab-width tab-width
   "The tab width to use when indenting."
@@ -20,6 +18,7 @@
 
 (defvar wren-this-regexp "_\\w+")
 (defvar wren-super-regexp "\\<super\\>")
+;; (defvar wren-class-regexp "class[\t ]\\w+")
 ;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
 
 
@@ -27,12 +26,11 @@
   (let ((beg "\\<")
         (end "\\>"))
     (list
+     (cons (concat beg (regexp-opt wren-keywords:constant t) end)
+           font-lock-constant-face)
      (cons (concat beg (regexp-opt wren-keywords:data t) end)
            font-lock-keyword-face)
-     (cons (concat beg (regexp-opt wren-keywords:control-flow t) end)
-           font-lock-keyword-face)
-     (cons (concat beg (regexp-opt wren-keywords:op:logic t) end)
-           font-lock-keyword-face)
+     ;; (cons wren-class-regexp font-lock-type-face)
      (cons wren-this-regexp font-lock-variable-name-face)
      (cons wren-super-regexp font-lock-variable-name-face)))
   "wren keywords highlighting")
@@ -47,11 +45,11 @@
 (defun wren-previous-indent ()
   "Return the indentation level of the previous non-blank line."
   (save-excursion
-    (wren-goto-preivous-nonblank-line)
+    (wren-goto-previous-nonblank-line)
     (current-indentation)))
 
 
-(defun wren-goto-preivous-nonblank-line ()
+(defun wren-goto-previous-nonblank-line ()
   (forward-line -1)
   (while (and (looking-at "^[ \t]*$") (not (bobp)))
     (forward-line -1)))
@@ -91,7 +89,7 @@
                       (looking-at "[]})]"))))
 
     (save-excursion
-      (wren-goto-preivous-nonblank-line)
+      (wren-goto-previous-nonblank-line)
       (end-of-line)
       (skip-chars-backward " \t")
       (forward-char -1)
