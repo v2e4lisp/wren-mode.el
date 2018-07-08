@@ -1,3 +1,5 @@
+;;; wren-mode.el --- wren.io emacs mode     -*- lexical-binding: t -*-
+
 (defconst wren-keywords:data
   '("class" "var" "new")
   "wren keywords for data")
