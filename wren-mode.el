@@ -36,12 +36,6 @@
   "wren keywords highlighting")
 
 
-(defun wren-comment-or-string-p (&optional pos)
-  "Returns true if the point is in a comment or string."
-  (save-excursion (let ((parse-result (syntax-ppss pos)))
-                    (or (elt parse-result 3) (elt parse-result 4)))))
-
-
 (defun wren-indent-line ()
   "Indent current line for `wren-mode'."
   (interactive)
