@@ -4,8 +4,7 @@
 
 (defconst wren-keywords:data
   '("break" "class" "construct" "else" "for" "foreign" "if"
-    "import" "in" "is" "return" "static" "super" "this" "var"
-    "while" "new")
+    "import" "in" "is" "return" "static" "super" "this" "var" "while")
   "wren keywords for data")
 
 (defconst wren-keywords:constant
