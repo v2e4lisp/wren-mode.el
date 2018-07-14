@@ -62,6 +62,18 @@
     (if (string-match "^[ \t]+$" (thing-at-point 'line))
         (end-of-line))))
 
+(defun wren-close-curly ()
+  (interactive)
+  (insert "}")
+  (wren-indent-line))
+
+(defvar wren-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "RET" 'newline-and-indent)
+    (define-key map "}" 'wren-close-curly)
+    map)
+  "keymap for wren major mode")
+
 
 ;; syntax table
 (defvar wren-mode-syntax-table
