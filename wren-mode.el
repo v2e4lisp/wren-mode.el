@@ -42,82 +42,25 @@
                     (or (elt parse-result 3) (elt parse-result 4)))))
 
 
-(defun wren-previous-indent ()
-  "Return the indentation level of the previous non-blank line."
-  (save-excursion
-    (wren-goto-previous-nonblank-line)
-    (current-indentation)))
-
-
-(defun wren-goto-previous-nonblank-line ()
-  (forward-line -1)
-  (while (and (looking-at "^[ \t]*$") (not (bobp)))
-    (forward-line -1)))
-
-
-(defun wren-indent-to (x)
-  (when x
-    (let (shift top beg)
-      (and (< x 0) (error "invalid nest"))
-      (setq shift (current-column))
-      (beginning-of-line)
-      (setq beg (point))
-      (back-to-indentation)
-      (setq top (current-column))
-      (skip-chars-backward " \t")
-      (if (>= shift top) (setq shift (- shift top))
-        (setq shift 0))
-      (if (and (bolp)
-               (= x top))
-          (move-to-column (+ x shift))
-        (move-to-column top)
-        (delete-region beg (point))
-        (beginning-of-line)
-        (indent-to x)
-        (move-to-column (+ x shift))))))
-
-
-;;;###autoload
-(defun wren-calculate-indent ()
-  (interactive)
-
-  (let* ((pos (point))
-         (line (line-number-at-pos pos))
-         (closing-p (save-excursion
-                      (beginning-of-line)
-                      (skip-chars-forward " \t")
-                      (looking-at "[]})]"))))
-
-    (save-excursion
-      (wren-goto-previous-nonblank-line)
-      (end-of-line)
-      (skip-chars-backward " \t")
-      (forward-char -1)
-
-      (cond
-       ((or (looking-at "^[ \t]*$")
-            (= line (line-number-at-pos (point))))
-        0)
-
-       ;; TODO: /* */
-       ((wren-comment-or-string-p pos)
-        (current-indentation))
-
-       (closing-p
-        (if (looking-at "[\\[{(]")
-            (current-indentation)
-          (- (current-indentation) wren-indent-offset)))
-
-       ((looking-at "[\\[{(]")
-        (+ (current-indentation) wren-indent-offset))
-
-       (t (current-indentation))))))
-
-
-;;;###autoload
 (defun wren-indent-line ()
+  "Indent current line for `wren-mode'."
   (interactive)
-  (wren-indent-to (wren-calculate-indent)))
+  (let ((indent-col 0))
+    (save-excursion
+      (beginning-of-line)
+      (condition-case nil
+	      (while t
+	        (backward-up-list 1)
+	        (when (looking-at "[{]")
+	          (setq indent-col (+ indent-col wren-indent-offset))))
+        (error nil)))
+    (save-excursion
+      (back-to-indentation)
+      (when (and (looking-at "[}]") (>= indent-col wren-indent-offset))
+        (setq indent-col (- indent-col wren-indent-offset)))
+	  (indent-line-to indent-col))
+    (if (string-match "^[ \t]+$" (thing-at-point 'line))
+        (end-of-line))))
 
 
 ;; syntax table
