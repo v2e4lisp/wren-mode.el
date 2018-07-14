@@ -70,6 +70,7 @@
 (defvar wren-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "RET" 'newline-and-indent)
+    (define-key map "\C-j" 'newline-and-indent)
     (define-key map "}" 'wren-close-curly)
     map)
   "keymap for wren major mode")
