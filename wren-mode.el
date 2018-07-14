@@ -1,5 +1,7 @@
 ;;; wren-mode.el --- wren.io emacs mode     -*- lexical-binding: t -*-
 
+(defvar wren-mode-hook nil)
+
 (defconst wren-keywords:data
   '("break" "class" "construct" "else" "for" "foreign" "if"
     "import" "in" "is" "return" "static" "super" "this" "var"
@@ -15,6 +17,11 @@
   :type 'integer
   :group 'wren
   :safe #'integerp)
+
+(defcustom wren-mode-hook nil
+  "Hooks called on wren mode."
+  :type 'hook
+  :group 'wren)
 
 (defvar wren-this-regexp "_\\w+")
 (defvar wren-super-regexp "\\<super\\>")
