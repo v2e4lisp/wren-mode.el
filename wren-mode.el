@@ -10,11 +10,11 @@
   '("true" "false" "null")
   "wren keywords for constants")
 
-(defcustom wren-tab-width tab-width
-  "The tab width to use when indenting."
+(defcustom wren-indent-offset 2
+  "Indentation offset for `wren-mode'."
   :type 'integer
   :group 'wren
-  :safe 'integerp)
+  :safe #'integerp)
 
 (defvar wren-this-regexp "_\\w+")
 (defvar wren-super-regexp "\\<super\\>")
@@ -106,10 +106,10 @@
        (closing-p
         (if (looking-at "[\\[{(]")
             (current-indentation)
-          (- (current-indentation) wren-tab-width)))
+          (- (current-indentation) wren-indent-offset)))
 
        ((looking-at "[\\[{(]")
-        (+ (current-indentation) wren-tab-width))
+        (+ (current-indentation) wren-indent-offset))
 
        (t (current-indentation))))))
 
