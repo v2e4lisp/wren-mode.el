@@ -120,28 +120,33 @@
   (wren-indent-to (wren-calculate-indent)))
 
 
+;; syntax table
+(defvar wren-mode-syntax-table
+  (with-syntax-table (copy-syntax-table)
+    (modify-syntax-entry ?/ ". 124b")
+    (modify-syntax-entry ?* ". 23")
+    (modify-syntax-entry ?\n "> b")
+    (modify-syntax-entry ?' "\"")
+    (modify-syntax-entry ?+ ".")
+    (modify-syntax-entry ?^ ".")
+    (modify-syntax-entry ?% ".")
+    (modify-syntax-entry ?> ".")
+    (modify-syntax-entry ?< ".")
+    (modify-syntax-entry ?= ".")
+    (modify-syntax-entry ?~ ".")
+    (syntax-table))
+  "`wren-mode' Syntax table")
+
+
 ;;;###autoload
 (define-derived-mode wren-mode prog-mode "wren"
   "Major mode for editing Wren."
+  :syntax-table wren-mode-syntax-table
+  :group 'wren
+  (setq-local font-lock-defaults '((wren-font-lock-keywords)))
+  (setq-local comment-start "//")
+  (setq-local indent-line-function 'wren-indent-line))
 
-  ;; syntax table
-  (modify-syntax-entry ?/ ". 124b" wren-mode-syntax-table)
-  (modify-syntax-entry ?* ". 23" wren-mode-syntax-table)
-  (modify-syntax-entry ?\n "> b" wren-mode-syntax-table)
-  (modify-syntax-entry ?' "\"" wren-mode-syntax-table)
-  (modify-syntax-entry ?+ "." wren-mode-syntax-table)
-  (modify-syntax-entry ?^ "." wren-mode-syntax-table)
-  (modify-syntax-entry ?% "." wren-mode-syntax-table)
-  (modify-syntax-entry ?> "." wren-mode-syntax-table)
-  (modify-syntax-entry ?< "." wren-mode-syntax-table)
-  (modify-syntax-entry ?= "." wren-mode-syntax-table)
-  (modify-syntax-entry ?~ "." wren-mode-syntax-table)
-
-  (setq font-lock-defaults '((wren-font-lock-keywords)))
-
-  (set (make-local-variable 'comment-start) "//")
-
-  (set (make-local-variable 'indent-line-function) 'wren-indent-line))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.wren\\'" . wren-mode))
