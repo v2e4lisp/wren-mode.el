@@ -22,7 +22,7 @@
   :type 'hook
   :group 'wren)
 
-(defvar wren-this-regexp "_\\w+")
+(defvar wren-this-regexp "\s_[0-9a-zA-z]*")
 (defvar wren-super-regexp "\\<super\\>")
 ;; (defvar wren-class-regexp "class[\t ]\\w+")
 ;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
