@@ -30,17 +30,14 @@
     (format "\\<\\(%s\\)\\>" (regexp-opt re))))
 
 (defvar wren-font-lock-keywords
-  (list
-   (cons (eval-when-compile
-           (wren-ppre wren-keywords))
-         font-lock-keyword-face)
-   (cons (eval-when-compile
-           (wren-ppre wren-keywords:constant))
-         font-lock-constant-face)
-   (cons "\\_<_.*?\\_>" font-lock-variable-name-face)       ;; this
-   (cons "\\_<__.*?\\_>" font-lock-variable-name-face)     ;; static this
-   ;; (cons "\\_<.*?\\_>()[\t ]{" font-lock-function-name-face)
-   )
+  (append
+   `(
+     (,(regexp-opt wren-keywords 'symbols) . font-lock-keyword-face)
+     (,(regexp-opt wren-keywords:constant 'symbols) . font-lock-constant-face)
+     ("\\_<_.*?\\_>" . 'font-lock-variable-name-face)       ;; this
+     ("\\_<__.*?\\_>" . font-lock-variable-name-face)     ;; static this
+     ("\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; function
+   ))
   "wren keywords highlight")
 
 (defun wren-indent-line ()
