@@ -2,10 +2,9 @@
 
 (defvar wren-mode-hook nil)
 
-(defconst wren-keywords:data
+(defconst wren-keywords
   '("break" "class" "construct" "else" "for" "foreign" "if"
-    "import" "in" "is" "return" "static" "super" "this" "var" "while")
-  "wren keywords for data")
+    "import" "in" "is" "return" "static" "super" "this" "var" "while"))
 
 (defconst wren-keywords:constant
   '("true" "false" "null")
@@ -22,25 +21,27 @@
   :type 'hook
   :group 'wren)
 
-(defvar wren-this-regexp "\s_[0-9a-zA-z]*")
-(defvar wren-super-regexp "\\<super\\>")
+(defvar wren-this-regexp "\\_<_.*?\\_>")
 ;; (defvar wren-class-regexp "class[\t ]\\w+")
 ;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
 
+(eval-when-compile
+  (defun wren-ppre (re)
+    (format "\\<\\(%s\\)\\>" (regexp-opt re))))
 
 (defvar wren-font-lock-keywords
-  (let ((beg "\\<")
-        (end "\\>"))
-    (list
-     (cons (concat beg (regexp-opt wren-keywords:constant t) end)
-           font-lock-constant-face)
-     (cons (concat beg (regexp-opt wren-keywords:data t) end)
-           font-lock-keyword-face)
-     ;; (cons wren-class-regexp font-lock-type-face)
-     (cons wren-this-regexp font-lock-variable-name-face)
-     (cons wren-super-regexp font-lock-variable-name-face)))
-  "wren keywords highlighting")
-
+  (list
+   (cons (eval-when-compile
+           (wren-ppre wren-keywords))
+         font-lock-keyword-face)
+   (cons (eval-when-compile
+           (wren-ppre wren-keywords:constant))
+         font-lock-constant-face)
+   (cons "\\_<_.*?\\_>" font-lock-variable-name-face)       ;; this
+   (cons "\\_<__.*?\\_>" font-lock-variable-name-face)     ;; static this
+   ;; (cons "\\_<.*?\\_>()[\t ]{" font-lock-function-name-face)
+   )
+  "wren keywords highlight")
 
 (defun wren-indent-line ()
   "Indent current line for `wren-mode'."
@@ -90,6 +91,7 @@
     (modify-syntax-entry ?< ".")
     (modify-syntax-entry ?= ".")
     (modify-syntax-entry ?~ ".")
+    (modify-syntax-entry ?_ "w")
     (syntax-table))
   "`wren-mode' Syntax table")
 
