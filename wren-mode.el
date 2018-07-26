@@ -21,10 +21,6 @@
   :type 'hook
   :group 'wren)
 
-(defvar wren-this-regexp "\\_<_.*?\\_>")
-;; (defvar wren-class-regexp "class[\t ]\\w+")
-;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
-
 (eval-when-compile
   (defun wren-ppre (re)
     (format "\\<\\(%s\\)\\>" (regexp-opt re))))
@@ -35,8 +31,11 @@
      (,(regexp-opt wren-keywords 'symbols) . font-lock-keyword-face)
      (,(regexp-opt wren-keywords:constant 'symbols) . font-lock-constant-face)
      ("\\_<_.*?\\_>" . 'font-lock-variable-name-face)       ;; this
-     ("\\_<__.*?\\_>" . font-lock-variable-name-face)     ;; static this
+     ("\\_<__.*?\\_>" . font-lock-variable-name-face)       ;; static this
      ("\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; function
+     ("\\_<construct\\_>[[:space:]]+\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; construct function
+     ("\\_<static\\_>[[:space:]]+\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; static function
+     ("\\_<class\\_>[[:space:]]+\\_<\\(.*?\\)\\_>" 1 font-lock-type-face)     ;; class name
    ))
   "wren keywords highlight")
 
