@@ -1,147 +1,106 @@
-(defconst wren-keywords:data
-  '("class" "var" "new")
-  "wren keywords for data")
+;;; wren-mode.el --- wren.io emacs mode     -*- lexical-binding: t -*-
 
-(defconst wren-keywords:control-flow
-  '("if" "else" "while" "for" "return")
-  "wren keywords for control flow")
+(defvar wren-mode-hook nil)
 
-(defconst wren-keywords:op:logic
-  '("and" "or" "not" "is")
-  "wren keywords for control flow")
+(defconst wren-keywords
+  '("break" "class" "construct" "else" "for" "foreign" "if"
+    "import" "in" "is" "return" "static" "super" "this" "var" "while"))
 
-(defcustom wren-tab-width tab-width
-  "The tab width to use when indenting."
+(defconst wren-keywords:constant
+  '("true" "false" "null")
+  "wren keywords for constants")
+
+(defcustom wren-indent-offset 2
+  "Indentation offset for `wren-mode'."
   :type 'integer
   :group 'wren
-  :safe 'integerp)
+  :safe #'integerp)
 
-(defvar wren-this-regexp "_\\w+")
-(defvar wren-super-regexp "\\<super\\>")
-;; (defvar wren-defun-regexp "\\w+\\( \\|\t\\){")
+(defcustom wren-mode-hook nil
+  "Hooks called on wren mode."
+  :type 'hook
+  :group 'wren)
 
+(eval-when-compile
+  (defun wren-ppre (re)
+    (format "\\<\\(%s\\)\\>" (regexp-opt re))))
 
 (defvar wren-font-lock-keywords
-  (let ((beg "\\<")
-        (end "\\>"))
-    (list
-     (cons (concat beg (regexp-opt wren-keywords:data t) end)
-           font-lock-keyword-face)
-     (cons (concat beg (regexp-opt wren-keywords:control-flow t) end)
-           font-lock-keyword-face)
-     (cons (concat beg (regexp-opt wren-keywords:op:logic t) end)
-           font-lock-keyword-face)
-     (cons wren-this-regexp font-lock-variable-name-face)
-     (cons wren-super-regexp font-lock-variable-name-face)))
-  "wren keywords highlighting")
+  (append
+   `(
+     (,(regexp-opt wren-keywords 'symbols) . font-lock-keyword-face)
+     (,(regexp-opt wren-keywords:constant 'symbols) . font-lock-constant-face)
+     ("\\_<_.*?\\_>" . 'font-lock-variable-name-face)       ;; this
+     ("\\_<__.*?\\_>" . font-lock-variable-name-face)       ;; static this
+     ("\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; function
+     ("\\_<construct\\_>[[:space:]]+\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; construct function
+     ("\\_<static\\_>[[:space:]]+\\_<\\(.*?\\)\\_>(.*)[[:space:]]+{" 1 font-lock-function-name-face)   ;; static function
+     ("\\_<class\\_>[[:space:]]+\\_<\\(.*?\\)\\_>" 1 font-lock-type-face)     ;; class name
+   ))
+  "wren keywords highlight")
 
-
-(defun wren-comment-or-string-p (&optional pos)
-  "Returns true if the point is in a comment or string."
-  (save-excursion (let ((parse-result (syntax-ppss pos)))
-                    (or (elt parse-result 3) (elt parse-result 4)))))
-
-
-(defun wren-previous-indent ()
-  "Return the indentation level of the previous non-blank line."
-  (save-excursion
-    (wren-goto-preivous-nonblank-line)
-    (current-indentation)))
-
-
-(defun wren-goto-preivous-nonblank-line ()
-  (forward-line -1)
-  (while (and (looking-at "^[ \t]*$") (not (bobp)))
-    (forward-line -1)))
-
-
-(defun wren-indent-to (x)
-  (when x
-    (let (shift top beg)
-      (and (< x 0) (error "invalid nest"))
-      (setq shift (current-column))
-      (beginning-of-line)
-      (setq beg (point))
-      (back-to-indentation)
-      (setq top (current-column))
-      (skip-chars-backward " \t")
-      (if (>= shift top) (setq shift (- shift top))
-        (setq shift 0))
-      (if (and (bolp)
-               (= x top))
-          (move-to-column (+ x shift))
-        (move-to-column top)
-        (delete-region beg (point))
-        (beginning-of-line)
-        (indent-to x)
-        (move-to-column (+ x shift))))))
-
-
-;;;###autoload
-(defun wren-calculate-indent ()
-  (interactive)
-
-  (let* ((pos (point))
-         (line (line-number-at-pos pos))
-         (closing-p (save-excursion
-                      (beginning-of-line)
-                      (skip-chars-forward " \t")
-                      (looking-at "[]})]"))))
-
-    (save-excursion
-      (wren-goto-preivous-nonblank-line)
-      (end-of-line)
-      (skip-chars-backward " \t")
-      (forward-char -1)
-
-      (cond
-       ((or (looking-at "^[ \t]*$")
-            (= line (line-number-at-pos (point))))
-        0)
-
-       ;; TODO: /* */
-       ((wren-comment-or-string-p pos)
-        (current-indentation))
-
-       (closing-p
-        (if (looking-at "[\\[{(]")
-            (current-indentation)
-          (- (current-indentation) wren-tab-width)))
-
-       ((looking-at "[\\[{(]")
-        (+ (current-indentation) wren-tab-width))
-
-       (t (current-indentation))))))
-
-
-;;;###autoload
 (defun wren-indent-line ()
+  "Indent current line for `wren-mode'."
   (interactive)
-  (wren-indent-to (wren-calculate-indent)))
+  (let ((indent-col 0))
+    (save-excursion
+      (beginning-of-line)
+      (condition-case nil
+	      (while t
+	        (backward-up-list 1)
+	        (when (looking-at "[{]")
+	          (setq indent-col (+ indent-col wren-indent-offset))))
+        (error nil)))
+    (save-excursion
+      (back-to-indentation)
+      (when (and (looking-at "[}]") (>= indent-col wren-indent-offset))
+        (setq indent-col (- indent-col wren-indent-offset)))
+	  (indent-line-to indent-col))
+    (if (string-match "^[ \t]+$" (thing-at-point 'line))
+        (end-of-line))))
+
+(defun wren-close-curly ()
+  (interactive)
+  (insert "}")
+  (wren-indent-line))
+
+(defvar wren-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") 'newline-and-indent)
+    (define-key map "\C-j" 'newline-and-indent)
+    (define-key map "}" 'wren-close-curly)
+    map)
+  "keymap for wren major mode")
+
+
+;; syntax table
+(defvar wren-mode-syntax-table
+  (with-syntax-table (copy-syntax-table)
+    (modify-syntax-entry ?/ ". 124b")
+    (modify-syntax-entry ?* ". 23")
+    (modify-syntax-entry ?\n "> b")
+    (modify-syntax-entry ?' "\"")
+    (modify-syntax-entry ?+ ".")
+    (modify-syntax-entry ?^ ".")
+    (modify-syntax-entry ?% ".")
+    (modify-syntax-entry ?> ".")
+    (modify-syntax-entry ?< ".")
+    (modify-syntax-entry ?= ".")
+    (modify-syntax-entry ?~ ".")
+    (modify-syntax-entry ?_ "w")
+    (syntax-table))
+  "`wren-mode' Syntax table")
 
 
 ;;;###autoload
 (define-derived-mode wren-mode prog-mode "wren"
   "Major mode for editing Wren."
+  :syntax-table wren-mode-syntax-table
+  :group 'wren
+  (setq-local font-lock-defaults '((wren-font-lock-keywords)))
+  (setq-local comment-start "//")
+  (setq-local indent-line-function 'wren-indent-line))
 
-  ;; syntax table
-  (modify-syntax-entry ?/ ". 124b" wren-mode-syntax-table)
-  (modify-syntax-entry ?* ". 23" wren-mode-syntax-table)
-  (modify-syntax-entry ?\n "> b" wren-mode-syntax-table)
-  (modify-syntax-entry ?' "\"" wren-mode-syntax-table)
-  (modify-syntax-entry ?+ "." wren-mode-syntax-table)
-  (modify-syntax-entry ?^ "." wren-mode-syntax-table)
-  (modify-syntax-entry ?% "." wren-mode-syntax-table)
-  (modify-syntax-entry ?> "." wren-mode-syntax-table)
-  (modify-syntax-entry ?< "." wren-mode-syntax-table)
-  (modify-syntax-entry ?= "." wren-mode-syntax-table)
-  (modify-syntax-entry ?~ "." wren-mode-syntax-table)
-
-  (setq font-lock-defaults '((wren-font-lock-keywords)))
-
-  (set (make-local-variable 'comment-start) "//")
-
-  (set (make-local-variable 'indent-line-function) 'wren-indent-line))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.wren\\'" . wren-mode))
